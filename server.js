@@ -41,7 +41,7 @@ ${items}
 
 async function listLinks() {
   const { rows } = await pool.query(
-    'SELECT url, note, created_at FROM links ORDER BY created_at LIMIT $1',
+    'SELECT url, note, created_at FROM links ORDER BY created_at DESC LIMIT $1',
     [config.pageSize],
   );
   return rows;
