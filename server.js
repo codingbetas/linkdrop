@@ -1,4 +1,6 @@
 const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 const { Pool } = require('pg');
 const config = require('./config');
 
@@ -49,6 +51,11 @@ async function addLink(url, note) {
   await pool.query('INSERT INTO links (url, note) VALUES ($1, $2)', [url, note]);
 }
 
+async function ensureSchema() {
+  const sql = fs.readFileSync(path.join(__dirname, 'db', 'schema.sql'), 'utf8');
+  await pool.query(sql);
+}
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -93,9 +100,16 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(config.port, config.host, () => {
-  console.log(`linkdrop listening on http://${config.host}:${config.port}`);
-});
+ensureSchema()
+  .then(() => {
+    server.listen(config.port, config.host, () => {
+      console.log(`linkdrop listening on http://${config.host}:${config.port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('schema init failed', err);
+    process.exit(1);
+  });
 
 process.on('SIGTERM', () => {
   server.close(() => pool.end().then(() => process.exit(0)));
