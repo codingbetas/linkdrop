@@ -13,21 +13,24 @@ One Node.js process and one PostgreSQL table. No framework, one dependency (`pg`
 
 ```bash
 npm install
-cp .env.example .env        # then edit PG_URL
+cp .env.example .env        # then edit DATABASE_URL
 export $(cat .env | xargs)
-psql "$PG_URL" -f db/schema.sql
+psql "$DATABASE_URL" -f db/schema.sql
 npm start
 ```
 
-The app listens on port 3000. Open http://localhost:3000 and drop a link.
+The app listens on `PORT` (defaults to 8080 if unset).
+Open http://localhost:8080 and drop a link.
 
 ## Configuration
 
 | Variable | What it is |
 |---|---|
-| `PG_URL` | PostgreSQL connection string, e.g. `postgresql://user:password@host:5432/linkdrop` |
-| `HOST` | Interface to listen on (optional) |
+| `DATABASE_URL` | PostgreSQL connection string, e.g. `postgresql://user:password@host:5432/linkdrop` |
+| `HOST` | Interface to listen on (optional, default `0.0.0.0`) |
 
 ## Health check
 
 `GET /healthz` answers `ok` once the process is up.
+
+
